@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RecSong</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #15131a;
+      --muted: #67616f;
+      --line: rgba(21, 19, 26, 0.13);
+      --paper: #fff8f3;
+      --panel: #ffffff;
+      --green: #0f8f73;
+      --blue: #3568d4;
+      --rose: #ff4f8b;
+      --gold: #ffb02e;
+      --mint: #b8ffe1;
+      --shadow: 0 24px 70px rgba(21, 19, 26, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255, 176, 46, 0.32), transparent 25%),
+        radial-gradient(circle at 88% 12%, rgba(255, 79, 139, 0.23), transparent 24%),
+        linear-gradient(145deg, #fff8f3 0%, #f3fbff 42%, #fff0f8 100%);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 36px;
+    }
+
+    .start-screen {
+      min-height: calc(100vh - 72px);
+      display: grid;
+      place-items: center;
+      padding: 24px 0;
+    }
+
+    .start-panel {
+      width: min(820px, 100%);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      padding: clamp(22px, 5vw, 50px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .start-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, rgba(255, 79, 139, 0.18), transparent 32%),
+        linear-gradient(315deg, rgba(15, 143, 115, 0.18), transparent 42%);
+      pointer-events: none;
+    }
+
+    .start-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 36px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      font-weight: 900;
+      color: var(--rose);
+      box-shadow: 0 10px 30px rgba(255, 79, 139, 0.14);
+    }
+
+    .start-title {
+      margin: 18px 0 10px;
+      font-size: clamp(2.75rem, 9vw, 6.2rem);
+      line-height: 0.92;
+      max-width: 760px;
+      overflow-wrap: anywhere;
+    }
+
+    .start-copy {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.5vw, 1.22rem);
+      max-width: 610px;
+    }
+
+    .start-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 18px 36px rgba(21, 19, 26, 0.1);
+    }
+
+    .start-form input[type="search"] {
+      height: 54px;
+      border: 0;
+      font-size: 1.02rem;
+      background: transparent;
+      min-width: 0;
+    }
+
+    .start-form input[type="search"]:focus {
+      box-shadow: none;
+    }
+
+    .start-form button {
+      min-height: 54px;
+      border: 0;
+      border-radius: 7px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--rose), var(--blue));
+      padding: 0 22px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .starter-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+      max-width: 100%;
+    }
+
+    .starter-tags button {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.84);
+      color: var(--ink);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .dashboard {
+      display: none;
+    }
+
+    body.has-started .start-screen {
+      display: none;
+    }
+
+    body.has-started .dashboard {
+      display: block;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 24px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.66);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.7rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+      max-width: 760px;
+    }
+
+    .subhead {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+      max-width: 680px;
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(88px, 1fr));
+      gap: 8px;
+      min-width: 320px;
+    }
+
+    .metric {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 8px 24px rgba(23, 23, 23, 0.07);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .controls,
+    .results,
+    .library {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .controls {
+      position: sticky;
+      top: 16px;
+      padding: 18px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 7px;
+    }
+
+    .field {
+      margin-bottom: 17px;
+    }
+
+    input[type="search"],
+    select {
+      width: 100%;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--ink);
+      padding: 0 12px;
+      outline: none;
+    }
+
+    input[type="search"]:focus,
+    select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(35, 107, 79, 0.12);
+    }
+
+    .start-form input[type="search"] {
+      height: 54px;
+      border: 0;
+      background: transparent;
+      font-size: 1.02rem;
+    }
+
+    .start-form input[type="search"]:focus {
+      box-shadow: none;
+    }
+
+    .chips,
+    .song-picks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip,
+    .pick {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 11px;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .chip:hover,
+    .pick:hover {
+      transform: translateY(-1px);
+      border-color: #a8a89e;
+    }
+
+    .chip.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .pick.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 44px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      accent-color: var(--rose);
+      width: 100%;
+    }
+
+    .range-value {
+      text-align: right;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 44px;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .primary,
+    .icon-button {
+      border: 0;
+      border-radius: 7px;
+      background: var(--ink);
+      color: #fff;
+      min-height: 44px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .icon-button {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      font-size: 1.15rem;
+    }
+
+    .content {
+      display: grid;
+      gap: 18px;
+    }
+
+    .results,
+    .library {
+      padding: 18px;
+    }
+
+    .recommendation-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .song-card {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.78)),
+        linear-gradient(135deg, rgba(255, 79, 139, 0.12), rgba(15, 143, 115, 0.1));
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .cover {
+      width: 72px;
+      aspect-ratio: 1;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 900;
+      font-size: 1.4rem;
+      overflow: hidden;
+    }
+
+    .song-title {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.25;
+    }
+
+    .artist {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 4px 8px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      background: #fafafa;
+    }
+
+    .score {
+      min-width: 76px;
+      text-align: right;
+    }
+
+    .score strong {
+      display: block;
+      font-size: 1.3rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .score span {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .track-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .listen-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, var(--green), var(--blue));
+      color: #fff;
+      padding: 0 12px;
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .why {
+      grid-column: 2 / -1;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    .library-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .library-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .library-item.active {
+      border-color: var(--blue);
+      box-shadow: inset 0 0 0 1px var(--blue);
+    }
+
+    .library-item strong {
+      display: block;
+      line-height: 1.25;
+    }
+
+    .library-item span {
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    @media (max-width: 880px) {
+      header,
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .status-strip {
+        min-width: 0;
+      }
+
+      .controls {
+        position: static;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        width: min(100% - 20px, 1180px);
+        padding-top: 12px;
+      }
+
+      .start-screen {
+        min-height: auto;
+        place-items: start center;
+        padding: 12px 0 22px;
+      }
+
+      .start-panel {
+        padding: 20px;
+      }
+
+      .brand-mark {
+        min-height: 32px;
+        font-size: 0.9rem;
+      }
+
+      .start-title {
+        font-size: clamp(2.55rem, 16vw, 4.4rem);
+        line-height: 0.96;
+        margin-top: 16px;
+      }
+
+      .start-copy {
+        font-size: 0.98rem;
+        margin-bottom: 16px;
+      }
+
+      .start-form {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .start-form input[type="search"],
+      .start-form button {
+        width: 100%;
+      }
+
+      .start-form button {
+        min-height: 48px;
+      }
+
+      .starter-tags {
+        gap: 7px;
+        margin-top: 14px;
+      }
+
+      .starter-tags button {
+        padding: 7px 10px;
+        font-size: 0.9rem;
+      }
+
+      .status-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .song-card {
+        grid-template-columns: 58px minmax(0, 1fr);
+      }
+
+      .cover {
+        width: 58px;
+      }
+
+      .score {
+        grid-column: 1 / -1;
+        text-align: left;
+      }
+
+      .why {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="start-screen" aria-label="Start RecSong">
+      <div class="start-panel">
+        <div class="start-inner">
+          <div class="brand-mark">RecSong</div>
+          <h1 class="start-title">Find your next loop.</h1>
+          <p class="start-copy">Type a song, artist, or vibe and RecSong will build a fresh queue from real tracks with listen links.</p>
+          <form class="start-form" id="startForm">
+            <input id="startSearch" type="search" placeholder="Try Taylor Swift, Daft Punk, bollywood, party">
+            <button type="submit">Go</button>
+          </form>
+          <div class="starter-tags" aria-label="Popular searches">
+            <button type="button" data-start-query="Taylor Swift">Taylor Swift</button>
+            <button type="button" data-start-query="Arijit Singh">Arijit Singh</button>
+            <button type="button" data-start-query="Daft Punk">Daft Punk</button>
+            <button type="button" data-start-query="party">party</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="dashboard">
+      <header>
+        <div>
+          <h1>RecSong</h1>
+          <p class="subhead">Aesthetic picks from real tracks based on your song, artist, mood, tempo, and genre taste.</p>
+        </div>
+        <div class="status-strip" aria-label="Recommendation metrics">
+          <div class="metric"><strong id="libraryCount">0</strong><span>songs</span></div>
+          <div class="metric"><strong id="pickCount">0</strong><span>picked</span></div>
+          <div class="metric"><strong id="matchCount">0</strong><span>matches</span></div>
+        </div>
+      </header>
+
+      <main>
+        <aside class="controls" aria-label="Recommendation controls">
+          <h2 class="section-title">Tune Your Vibe</h2>
+
+          <div class="field">
+            <label for="search">Song, artist, or vibe</label>
+            <input id="search" type="search" placeholder="Search artist, song, genre">
+          </div>
+
+          <div class="field">
+            <label>Quick picks</label>
+            <div class="song-picks" id="quickPicks"></div>
+          </div>
+
+          <div class="field">
+            <label>Genres</label>
+            <div class="chips" id="genreChips"></div>
+          </div>
+
+          <div class="field">
+            <label for="mood">Mood</label>
+            <select id="mood">
+              <option value="any">Any mood</option>
+              <option value="uplifting">Uplifting</option>
+              <option value="focused">Focused</option>
+              <option value="melancholy">Melancholy</option>
+              <option value="romantic">Romantic</option>
+              <option value="party">Party</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="tempo">Preferred tempo</label>
+            <div class="range-row">
+              <input id="tempo" type="range" min="70" max="180" value="116">
+              <span class="range-value"><span id="tempoValue">116</span></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="energy">Energy</label>
+            <div class="range-row">
+              <input id="energy" type="range" min="1" max="10" value="6">
+              <span class="range-value"><span id="energyValue">6</span>/10</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" id="recommend">Refresh</button>
+            <button class="icon-button" id="reset" title="Reset filters" aria-label="Reset filters">↺</button>
+          </div>
+        </aside>
+
+        <section class="content">
+          <div class="results">
+            <h2 class="section-title">For You</h2>
+            <div id="recommendations" class="recommendation-list"></div>
+          </div>
+
+          <div class="library">
+            <h2 class="section-title">Explore</h2>
+            <div id="library" class="library-grid"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const starterSongs = [
+      { title: "Blinding Lights", artist: "The Weeknd", genres: ["pop", "synthwave"], mood: "party", bpm: 171, energy: 9, year: 2019, color: "#a74856" },
+      { title: "Levitating", artist: "Dua Lipa", genres: ["pop", "dance"], mood: "party", bpm: 103, energy: 8, year: 2020, color: "#275f8f" },
+      { title: "As It Was", artist: "Harry Styles", genres: ["pop", "indie"], mood: "uplifting", bpm: 174, energy: 7, year: 2022, color: "#b27a22" },
+      { title: "Heat Waves", artist: "Glass Animals", genres: ["indie", "pop"], mood: "melancholy", bpm: 81, energy: 5, year: 2020, color: "#236b4f" },
+      { title: "good 4 u", artist: "Olivia Rodrigo", genres: ["pop", "rock"], mood: "party", bpm: 167, energy: 9, year: 2021, color: "#a74856" },
+      { title: "Bad Habit", artist: "Steve Lacy", genres: ["r&b", "indie"], mood: "romantic", bpm: 169, energy: 5, year: 2022, color: "#275f8f" },
+      { title: "Sunflower", artist: "Post Malone & Swae Lee", genres: ["hip-hop", "pop"], mood: "uplifting", bpm: 90, energy: 6, year: 2018, color: "#b27a22" },
+      { title: "Nights", artist: "Frank Ocean", genres: ["r&b", "alternative"], mood: "focused", bpm: 90, energy: 6, year: 2016, color: "#236b4f" },
+      { title: "Motion Sickness", artist: "Phoebe Bridgers", genres: ["indie", "folk"], mood: "melancholy", bpm: 107, energy: 4, year: 2017, color: "#65788f" },
+      { title: "Dreams", artist: "Fleetwood Mac", genres: ["rock", "classic"], mood: "focused", bpm: 120, energy: 5, year: 1977, color: "#5f7f54" },
+      { title: "Redbone", artist: "Childish Gambino", genres: ["r&b", "funk"], mood: "romantic", bpm: 160, energy: 5, year: 2016, color: "#8d5934" },
+      { title: "The Less I Know The Better", artist: "Tame Impala", genres: ["indie", "psychedelic"], mood: "uplifting", bpm: 117, energy: 6, year: 2015, color: "#7a4b8f" },
+      { title: "Electric Feel", artist: "MGMT", genres: ["indie", "dance"], mood: "party", bpm: 103, energy: 7, year: 2007, color: "#236b4f" },
+      { title: "Take Five", artist: "Dave Brubeck", genres: ["jazz", "classic"], mood: "focused", bpm: 174, energy: 4, year: 1959, color: "#275f8f" },
+      { title: "Sweet Disposition", artist: "The Temper Trap", genres: ["indie", "rock"], mood: "uplifting", bpm: 129, energy: 8, year: 2008, color: "#b27a22" },
+      { title: "Get Lucky", artist: "Daft Punk", genres: ["dance", "funk"], mood: "party", bpm: 116, energy: 8, year: 2013, color: "#a74856" },
+      { title: "Pink + White", artist: "Frank Ocean", genres: ["r&b", "soul"], mood: "romantic", bpm: 160, energy: 4, year: 2016, color: "#b86b8c" },
+      { title: "Space Song", artist: "Beach House", genres: ["dream pop", "indie"], mood: "melancholy", bpm: 147, energy: 3, year: 2015, color: "#65788f" },
+      { title: "A-Punk", artist: "Vampire Weekend", genres: ["indie", "rock"], mood: "uplifting", bpm: 175, energy: 8, year: 2008, color: "#236b4f" },
+      { title: "Lose Yourself to Dance", artist: "Daft Punk", genres: ["dance", "funk"], mood: "party", bpm: 100, energy: 7, year: 2013, color: "#8d5934" },
+      { title: "Cranes in the Sky", artist: "Solange", genres: ["r&b", "soul"], mood: "melancholy", bpm: 123, energy: 3, year: 2016, color: "#b27a22" },
+      { title: "Midnight City", artist: "M83", genres: ["synthwave", "indie"], mood: "uplifting", bpm: 105, energy: 8, year: 2011, color: "#275f8f" },
+      { title: "September", artist: "Earth, Wind & Fire", genres: ["funk", "classic"], mood: "party", bpm: 126, energy: 9, year: 1978, color: "#b27a22" },
+      { title: "Holocene", artist: "Bon Iver", genres: ["folk", "indie"], mood: "focused", bpm: 148, energy: 2, year: 2011, color: "#5f7f54" }
+    ];
+
+    function makeListenUrl(song) {
+      return `https://music.youtube.com/search?q=${encodeURIComponent(`${song.title} ${song.artist}`)}`;
+    }
+
+    function buildCatalog() {
+      return starterSongs.map((song, index) => ({ id: `s-${index}`, ...song }))
+        .map(song => ({ ...song, listenUrl: makeListenUrl(song), haystack: `${song.title} ${song.artist} ${song.genres.join(" ")} ${song.mood}`.toLowerCase() }));
+    }
+
+    let songs = buildCatalog();
+
+    const selectedGenres = new Set(["indie", "pop"]);
+    const selectedPicks = new Set();
+
+    const els = {
+      libraryCount: document.querySelector("#libraryCount"),
+      pickCount: document.querySelector("#pickCount"),
+      matchCount: document.querySelector("#matchCount"),
+      quickPicks: document.querySelector("#quickPicks"),
+      genreChips: document.querySelector("#genreChips"),
+      recommendations: document.querySelector("#recommendations"),
+      library: document.querySelector("#library"),
+      search: document.querySelector("#search"),
+      mood: document.querySelector("#mood"),
+      tempo: document.querySelector("#tempo"),
+      energy: document.querySelector("#energy"),
+      tempoValue: document.querySelector("#tempoValue"),
+      energyValue: document.querySelector("#energyValue"),
+      recommend: document.querySelector("#recommend"),
+      reset: document.querySelector("#reset"),
+      startForm: document.querySelector("#startForm"),
+      startSearch: document.querySelector("#startSearch")
+    };
+
+    let allGenres = [...new Set(songs.flatMap(song => song.genres))].sort();
+
+    const realCatalogQueries = [
+      "Taylor Swift", "Drake", "Ariana Grande", "Billie Eilish", "Ed Sheeran",
+      "Beyonce", "Rihanna", "Kendrick Lamar", "SZA", "Travis Scott",
+      "The Weeknd", "Dua Lipa", "Harry Styles", "Olivia Rodrigo", "Frank Ocean",
+      "Daft Punk", "Arijit Singh", "A R Rahman", "Shreya Ghoshal", "Bad Bunny"
+    ];
+
+    function moodFromGenre(genre, title) {
+      const text = `${genre} ${title}`.toLowerCase();
+      if (/dance|disco|party|reggaeton|k-pop|electronic|house/.test(text)) return "party";
+      if (/soul|r&b|love|romance|ballad/.test(text)) return "romantic";
+      if (/sad|blue|rain|folk|acoustic|blues/.test(text)) return "melancholy";
+      if (/jazz|classical|ambient|soundtrack|instrumental/.test(text)) return "focused";
+      return "uplifting";
+    }
+
+    function colorFromText(text) {
+      const colors = ["#236b4f", "#275f8f", "#a74856", "#b27a22", "#65788f", "#8d5934", "#7a4b8f", "#5f7f54", "#ff4f8b", "#0f8f73"];
+      const index = [...text].reduce((sum, char) => sum + char.charCodeAt(0), 0) % colors.length;
+      return colors[index];
+    }
+
+    function normalizeApiTrack(track) {
+      const genre = (track.primaryGenreName || "pop").toLowerCase();
+      const year = track.releaseDate ? Number(track.releaseDate.slice(0, 4)) : 2020;
+      const key = `${track.trackName || ""} ${track.artistName || ""}`;
+      const hash = [...key].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+      return {
+        id: `itunes-${track.trackId}`,
+        title: track.trackName,
+        artist: track.artistName,
+        genres: [genre],
+        mood: moodFromGenre(genre, track.trackName || ""),
+        bpm: 72 + (hash % 108),
+        energy: 1 + (hash % 10),
+        year,
+        color: colorFromText(key),
+        listenUrl: makeListenUrl({ title: track.trackName, artist: track.artistName }),
+        haystack: `${track.trackName} ${track.artistName} ${genre}`.toLowerCase()
+      };
+    }
+
+    function mergeSongs(nextSongs) {
+      const seen = new Set();
+      songs = [...songs, ...nextSongs]
+        .filter(song => song.title && song.artist)
+        .filter(song => {
+          const key = `${song.title.toLowerCase()}::${song.artist.toLowerCase()}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      allGenres = [...new Set(songs.flatMap(song => song.genres))].sort();
+      renderGenres();
+      renderQuickPicks();
+      renderLibrary();
+      recommend();
+    }
+
+    async function fetchRealSongs(term, limit = 200) {
+      const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=${limit}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Song lookup failed for ${term}`);
+      const data = await response.json();
+      return (data.results || [])
+        .filter(track => track.wrapperType === "track" && track.kind === "song" && track.trackName && track.artistName)
+        .map(normalizeApiTrack);
+    }
+
+    async function loadRealCatalog() {
+      try {
+        const batches = await Promise.all(realCatalogQueries.map(query => fetchRealSongs(query, 200)));
+        mergeSongs(batches.flat());
+      } catch (error) {
+        console.warn("Using curated fallback catalog only.", error);
+        renderGenres();
+        renderQuickPicks();
+        renderLibrary();
+        recommend();
+      }
+    }
+
+    function queryParts() {
+      return els.search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    }
+
+    function queryScore(song) {
+      const parts = queryParts();
+      if (!parts.length) return { score: 0, reason: "" };
+      const artist = song.artist.toLowerCase();
+      const title = song.title.toLowerCase();
+      const allWordsHit = parts.every(part => song.haystack.includes(part));
+      const artistHit = parts.every(part => artist.includes(part));
+      const titleHit = parts.every(part => title.includes(part));
+      if (artistHit) return { score: 0.42, reason: `matches artist search "${els.search.value.trim()}"` };
+      if (titleHit) return { score: 0.34, reason: `matches song search "${els.search.value.trim()}"` };
+      if (allWordsHit) return { score: 0.24, reason: `matches your search "${els.search.value.trim()}"` };
+      return { score: 0, reason: "" };
+    }
+
+    function similarity(song) {
+      const pickedSongs = songs.filter(item => selectedPicks.has(item.id));
+      const pickedGenres = new Set(pickedSongs.flatMap(item => item.genres));
+      const targetGenres = new Set([...selectedGenres, ...pickedGenres]);
+      const genreHits = song.genres.filter(genre => targetGenres.has(genre)).length;
+      const genreScore = targetGenres.size ? genreHits / Math.max(song.genres.length, targetGenres.size) : 0.25;
+      const moodScore = els.mood.value === "any" ? 0.6 : song.mood === els.mood.value ? 1 : 0;
+      const tempoScore = 1 - Math.min(Math.abs(song.bpm - Number(els.tempo.value)) / 90, 1);
+      const energyScore = 1 - Math.min(Math.abs(song.energy - Number(els.energy.value)) / 9, 1);
+      const freshnessScore = Math.min(Math.max((song.year - 1970) / 55, 0), 1);
+      const pickedArtistBonus = pickedSongs.some(picked => picked.artist === song.artist) ? 0.08 : 0;
+      const search = queryScore(song);
+      const score = (genreScore * 0.28) + (moodScore * 0.17) + (tempoScore * 0.14) + (energyScore * 0.14) + (freshnessScore * 0.09) + pickedArtistBonus + search.score;
+      const reasons = [];
+
+      if (genreHits) reasons.push(`shares ${song.genres.filter(genre => targetGenres.has(genre)).join(", ")}`);
+      if (moodScore === 1) reasons.push(`fits ${song.mood} mood`);
+      if (tempoScore > 0.82) reasons.push(`close tempo at ${song.bpm} BPM`);
+      if (energyScore > 0.82) reasons.push(`energy ${song.energy}/10 matches`);
+      if (pickedArtistBonus) reasons.push(`same artist as one of your picks`);
+      if (search.reason) reasons.unshift(search.reason);
+
+      return {
+        song,
+        score,
+        reasons: reasons.length ? reasons : ["balanced fit across your current controls"]
+      };
+    }
+
+    function renderGenres() {
+      els.genreChips.innerHTML = allGenres.map(genre => `
+        <button class="chip ${selectedGenres.has(genre) ? "active" : ""}" data-genre="${genre}">${genre}</button>
+      `).join("");
+    }
+
+    function renderQuickPicks() {
+      els.quickPicks.innerHTML = songs.slice(0, 8).map(song => `
+        <button class="pick ${selectedPicks.has(song.id) ? "active" : ""}" data-song="${song.id}">${song.title}</button>
+      `).join("");
+    }
+
+    function renderLibrary() {
+      const query = els.search.value.trim().toLowerCase();
+      const filtered = songs.filter(song => {
+        return song.haystack.includes(query);
+      }).slice(0, 80);
+
+      els.library.innerHTML = filtered.map(song => `
+        <button class="library-item ${selectedPicks.has(song.id) ? "active" : ""}" data-song="${song.id}">
+          <strong>${song.title}</strong>
+          <span>${song.artist} &middot; ${song.genres.join(", ")} &middot; ${song.bpm} BPM</span>
+        </button>
+      `).join("");
+    }
+
+    function cover(song) {
+      const initials = song.title.split(/\s+/).slice(0, 2).map(word => word[0]).join("").replace(/[^A-Z0-9]/gi, "").toUpperCase();
+      return `<div class="cover" style="background: linear-gradient(135deg, ${song.color}, #171717);">${initials}</div>`;
+    }
+
+    function recommend() {
+      const ranked = songs
+        .filter(song => !selectedPicks.has(song.id))
+        .map(similarity)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+
+      els.recommendations.innerHTML = ranked.map(({ song, score, reasons }) => `
+        <article class="song-card">
+          ${cover(song)}
+          <div>
+            <h3 class="song-title">${song.title}</h3>
+            <div class="artist">${song.artist} &middot; ${song.year}</div>
+            <div class="tags">
+              ${song.genres.map(genre => `<span class="tag">${genre}</span>`).join("")}
+              <span class="tag">${song.mood}</span>
+              <span class="tag">${song.bpm} BPM</span>
+              <span class="tag">energy ${song.energy}/10</span>
+            </div>
+          </div>
+          <div class="score">
+            <strong>${Math.round(score * 100)}</strong>
+            <span>match</span>
+            <div class="track-actions">
+              <a class="listen-link" href="${song.listenUrl}" target="_blank" rel="noopener">Listen</a>
+            </div>
+          </div>
+          <div class="why">Why: ${reasons.join("; ")}.</div>
+        </article>
+      `).join("");
+
+      els.libraryCount.textContent = songs.length;
+      els.pickCount.textContent = selectedPicks.size;
+      els.matchCount.textContent = ranked.length;
+    }
+
+    function togglePick(id) {
+      if (selectedPicks.has(id)) selectedPicks.delete(id);
+      else selectedPicks.add(id);
+      renderQuickPicks();
+      renderLibrary();
+      recommend();
+    }
+
+    els.genreChips.addEventListener("click", event => {
+      const button = event.target.closest("[data-genre]");
+      if (!button) return;
+      const genre = button.dataset.genre;
+      if (selectedGenres.has(genre)) selectedGenres.delete(genre);
+      else selectedGenres.add(genre);
+      renderGenres();
+      recommend();
+    });
+
+    document.addEventListener("click", event => {
+      const songButton = event.target.closest("[data-song]");
+      if (!songButton) return;
+      togglePick(songButton.dataset.song);
+    });
+
+    [els.search, els.mood, els.tempo, els.energy].forEach(input => {
+      input.addEventListener("input", () => {
+        els.tempoValue.textContent = els.tempo.value;
+        els.energyValue.textContent = els.energy.value;
+        renderLibrary();
+        recommend();
+      });
+    });
+
+    els.recommend.addEventListener("click", recommend);
+    els.reset.addEventListener("click", () => {
+      selectedGenres.clear();
+      ["indie", "pop"].forEach(genre => selectedGenres.add(genre));
+      selectedPicks.clear();
+      els.search.value = "";
+      els.mood.value = "any";
+      els.tempo.value = 116;
+      els.energy.value = 6;
+      els.tempoValue.textContent = els.tempo.value;
+      els.energyValue.textContent = els.energy.value;
+      renderGenres();
+      renderQuickPicks();
+      renderLibrary();
+      recommend();
+    });
+
+    async function startRecSong(query) {
+      const value = query.trim();
+      if (!value) return;
+      els.search.value = value;
+      document.body.classList.add("has-started");
+      renderLibrary();
+      recommend();
+      try {
+        const freshSongs = await fetchRealSongs(value, 200);
+        mergeSongs(freshSongs);
+      } catch (error) {
+        console.warn("Could not fetch extra tracks for this search.", error);
+      }
+    }
+
+    els.startForm.addEventListener("submit", event => {
+      event.preventDefault();
+      startRecSong(els.startSearch.value);
+    });
+
+    document.addEventListener("click", event => {
+      const starter = event.target.closest("[data-start-query]");
+      if (!starter) return;
+      startRecSong(starter.dataset.startQuery);
+    });
+
+    renderGenres();
+    renderQuickPicks();
+    renderLibrary();
+    recommend();
+    loadRealCatalog();
+  </script>
+</body>
+</html>
